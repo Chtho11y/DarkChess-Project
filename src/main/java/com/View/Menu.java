@@ -1,17 +1,15 @@
 package com.View;
 
-import com.Controller.ChessExecutor;
-import com.Controller.Executor;
-import com.Controller.Recorder;
+import com.AIDemo.MinMax;
+import com.Controller.*;
+import com.Model.InputMode;
 import com.Model.Option;
 import com.Model.PieceColor;
-import com.Model.RoundStatus;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -21,6 +19,7 @@ import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Random;
 
 class MenuOption extends Option {
 
@@ -84,12 +83,15 @@ public class Menu{
 
     static public void paint(Pane pane){
         bg=new Rectangle(posX,posY,width,height);
-        bg.setFill(Color.TRANSPARENT);
+        bg.setFill(Color.valueOf(bgColor));
+        bg.setVisible(false);
         bg.setMouseTransparent(true);
         pane.getChildren().add(bg);
+
         title=new Text(posX+width*0.5-50,posY+10,"菜单");
+        title.setFill(Color.valueOf(textColor));
         title.setFont(Font.font("华文楷体",50));
-        title.setFill(Color.TRANSPARENT);
+        title.setVisible(false);
         title.setTextOrigin(VPos.TOP);
         title.setMouseTransparent(true);
         pane.getChildren().add(title);
@@ -102,12 +104,29 @@ public class Menu{
 
         addOption(pane,"重新开始",e->{
             e.consume();
-            Executor.gameStart(true,0);
+            if(Executor.getGameMode()== InputMode.REPLAY)
+                Replay.clear();
+            if(Executor.getGameMode()==InputMode.AUTO){
+                Executor.gameStart(true,0, InputMode.AUTO);
+                Random rd=new Random(System.currentTimeMillis());
+                int mode=rd.nextInt(2);
+                if(mode==1){
+                    Connector.setMode(InputMode.NORMAL, InputMode.AUTO);
+                }else{
+                    Connector.setMode(InputMode.AUTO, InputMode.NORMAL);
+                    MinMax.operate();
+                }
+            }
+            if(Executor.getGameMode()==InputMode.NORMAL) {
+                Executor.gameStart(true, 0, InputMode.NORMAL);
+                Connector.setMode(InputMode.NORMAL, InputMode.NORMAL);
+            }
             hide();
         });
 
         addOption(pane,"保存对局",e->{
             e.consume();
+            if(Replay.getState())return;
             Recorder.buildProgress();
             Recorder.save();
             hide();
@@ -122,6 +141,20 @@ public class Menu{
 
         addOption(pane,"主菜单",e->{
             e.consume();
+            Alert alert=new Alert(Alert.AlertType.NONE,"是否保存？",new ButtonType("保存", ButtonBar.ButtonData.YES),
+                    new ButtonType("不保存", ButtonBar.ButtonData.NO),new ButtonType("取消", ButtonBar.ButtonData.OTHER));
+            alert.setTitle("警告");
+            alert.initOwner(Executor.getStage());
+            Optional<ButtonType> result=alert.showAndWait();
+            if(result.isEmpty())
+                return;
+            if(result.get().getButtonData().equals(ButtonBar.ButtonData.YES)){
+                Recorder.buildProgress();
+                Recorder.save();
+                Executor.redrawMainMenu();
+            }else if(result.get().getButtonData().equals(ButtonBar.ButtonData.NO)){
+                Executor.redrawMainMenu();
+            }
         });
 
         addOption(pane,"退出游戏",e->{
@@ -160,15 +193,15 @@ public class Menu{
     }
 
     static public void show(){
-        title.setFill(Color.valueOf(textColor));
-        bg.setFill(Color.valueOf(bgColor));
+        title.setVisible(true);
+        bg.setVisible(true);
         for(Option op:options)
             op.show();
     }
 
     static public void hide(){
-        bg.setFill(Color.TRANSPARENT);
-        title.setFill(Color.TRANSPARENT);
+        bg.setVisible(false);
+        title.setVisible(false);
         for(Option op:options)
             op.hide();
     }

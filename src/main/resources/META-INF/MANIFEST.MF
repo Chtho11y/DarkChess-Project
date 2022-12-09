@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Main-Class: com.example.demo.Launcher
+Class-Path: javafx-controls-17.0.2-win.jar javafx-base-17.0.2.jar javafx
+ -swt.jar javafx.web.jar javafx.base.jar javafx.fxml.jar javafx.media.ja
+ r javafx.swing.jar javafx.controls.jar javafx.graphics.jar javafx-graph
+ ics-17.0.2.jar javafx-graphics-17.0.2-win.jar javafx-controls-17.0.2.ja
+ r javafx-fxml-17.0.2-win.jar javafx-base-17.0.2-win.jar javafx-fxml-17.
+ 0.2.jar
+

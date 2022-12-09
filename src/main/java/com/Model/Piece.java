@@ -23,6 +23,12 @@ public class Piece{
         this.covered=covered;
     }
 
+    public Piece(Piece p){
+        color=p.color;
+        type=p.type;
+        covered=p.covered;
+    }
+
     public Piece(){
         color= PieceColor.RED;
         type=PieceType.EMPTY;
@@ -85,7 +91,7 @@ public class Piece{
 
     public boolean compareTo(Piece x){
         if(color==x.color)return false;
-        if(x.type==PieceType.GENERAL)return type==PieceType.SOLDIER;
+        if(x.type==PieceType.GENERAL)return type==PieceType.SOLDIER||type==PieceType.GENERAL;
         if(type==PieceType.GENERAL)return PieceType.SOLDIER!=x.type;
         return type.id<=x.type.id;
     }

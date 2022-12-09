@@ -8,4 +8,8 @@ public enum PieceColor{
         return this==RED?Color.RED: Color.BLACK;
     }
 
+    public PieceColor nextColor(){
+        return this==RED?BLACK:RED;
+    }
+
 }

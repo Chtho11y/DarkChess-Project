@@ -33,6 +33,10 @@ public class Option {
         div2.setStartY(y + h);
         div2.setEndX(x + w - 5);
         div2.setEndY(y + h);
+        div1.setStroke(Color.gray(0.3));
+        div2.setStroke(Color.gray(0.3));
+        div1.setMouseTransparent(true);
+        div2.setMouseTransparent(true);
     }
 
      public void setHandler(EventHandler<? super MouseEvent> handler) {
@@ -49,16 +53,17 @@ public class Option {
     public void show() {
         activate = true;
         bg.setFill(Color.TRANSPARENT);
-        div1.setStroke(Color.gray(0.3));
-        div2.setStroke(Color.gray(0.3));
+        div1.setVisible(true);
+        div2.setVisible(true);
+        bg.setVisible(true);
         bg.setMouseTransparent(false);
     }
 
     public void hide() {
         activate = false;
-        bg.setFill(Color.TRANSPARENT);
-        div1.setStroke(Color.TRANSPARENT);
-        div2.setStroke(Color.TRANSPARENT);
+        bg.setVisible(false);
+        div1.setVisible(false);
+        div2.setVisible(false);
         bg.setMouseTransparent(true);
     }
 

@@ -1,5 +1,7 @@
 package com.Controller;
 
+import com.AIDemo.ChessNode;
+import com.AIDemo.MinMax;
 import com.Model.*;
 import com.View.ChessPainter;
 import com.View.UIPainter;
@@ -40,6 +42,10 @@ public class ChessExecutor {
         roundStatus=offensiveColor=PieceColor.UNKNOWN;
     }
 
+    static boolean isOffensive(){
+        return roundStatus==offensiveColor||roundStatus== PieceColor.UNKNOWN;
+    }
+
     static int indexOf(int x,int y){
         return y*width+x;
     }
@@ -68,7 +74,7 @@ public class ChessExecutor {
         return roundStatus;
     }
 
-    static void nextRound(){
+    static void nextRound() {
         setRoundStatus(roundStatus== PieceColor.RED? PieceColor.BLACK: PieceColor.RED);
         UIPainter.setSymbol(roundStatus);
     }
@@ -203,5 +209,13 @@ public class ChessExecutor {
         setPiece(x1,y1,new Piece());
         ChessPainter.swapPiece(x1,y1,x2,y2);
         nextRound();
+    }
+
+    public static Piece[][] getBoard(){
+        Piece[][] res=new Piece[4][8];
+        for(int i=0;i<4;++i)
+            for(int j=0;j<8;++j)
+                res[i][j]=getPiece(i,j);
+        return res;
     }
 }

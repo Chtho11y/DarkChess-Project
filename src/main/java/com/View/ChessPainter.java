@@ -14,6 +14,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
+
 
 /**
  * The {@code ChessPainter} class add the board and pieces into the Pane.
@@ -197,6 +200,10 @@ public class ChessPainter {
         rect.setFill(color);
     }
 
+    public static void setHighlight(int x,int y){
+         paintCell(selectCell,x,y, Color.valueOf(validColor));
+    }
+
     public static void setSelectCell(int x, int y){
         paintCell(selectCell,x,y, Color.valueOf(selectedColor));
         int[] dis=ChessExecutor.getValidPlace(x,y);
@@ -211,7 +218,7 @@ public class ChessPainter {
     }
 
     public static void eraseSelectCell(){
-        selectCell.setFill(Color.TRANSPARENT);
+         selectCell.setFill(Color.TRANSPARENT);
         for(Rectangle rect:nextCell)
             rect.setFill(Color.TRANSPARENT);
     }
@@ -350,5 +357,19 @@ public class ChessPainter {
 
     public static void travelPiece(int x,int y,int x1,int y1,Piece p,boolean killed){
         Animation.start(p,x,y,x1,y1,killed);
+    }
+
+    public static int[] getBlackRemovedPiece(){
+         int[] res=new int[8];
+         for(int i=0;i<8;++i)
+             res[i]=blackPieceList[i].counter;
+         return res;
+    }
+
+    public static int[] getRedRemovedPiece(){
+        int[] res=new int[8];
+        for(int i=0;i<8;++i)
+            res[i]=redPieceList[i].counter;
+        return res;
     }
 }

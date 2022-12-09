@@ -13,11 +13,11 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class Painter {
-    static Font font(double size){
+    public static Font font(double size){
         return Font.font("华文行楷", FontWeight.NORMAL, FontPosture.REGULAR,size);
     }
 
-    static Text text(double size, String t,double posX,double posY,Color color){
+    public static Text text(double size, String t,double posX,double posY,Color color){
         Text text=new Text(posX,posY,t);
         text.setTextOrigin(VPos.TOP);
         text.setFont(font(size));
@@ -25,7 +25,7 @@ public class Painter {
         return text;
     }
 
-    static DropShadow getStandardShadow(){
+    public static DropShadow getStandardShadow(){
         DropShadow ds=new DropShadow();
         ds.setOffsetX(6);
         ds.setOffsetY(6);
@@ -34,7 +34,7 @@ public class Painter {
         return ds;
     }
 
-    static DropShadow getNoShadow(){
+    public static DropShadow getNoShadow(){
         DropShadow ds=new DropShadow();
         ds.setOffsetX(6);
         ds.setOffsetY(6);
@@ -43,7 +43,7 @@ public class Painter {
         return ds;
     }
 
-    static Background getBackground(Color color){
+    public static Background getBackground(Color color){
         return new Background( new BackgroundFill(color,new CornerRadii(5), Insets.EMPTY));
     }
 }

@@ -1,5 +1,6 @@
 package com.View;
 
+import com.Controller.Executor;
 import com.Controller.Recorder;
 import com.Model.Option;
 import javafx.event.ActionEvent;
@@ -128,7 +129,9 @@ public class ProgressPainter{
         });
         addButton(pane,470,"返回",buttonColor2,e->{
             hide();
-            Menu.show();
+            if(MainMenu.isShowing())
+                Executor.redrawMainMenu();
+            else Menu.show();
         });
         addButton(pane,400,"载入",buttonColor1,e->{
             if(sId==-1)return;

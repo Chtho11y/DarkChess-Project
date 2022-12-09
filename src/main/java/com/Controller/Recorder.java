@@ -1,23 +1,29 @@
 package com.Controller;
 
 
+import com.Model.InputMode;
 import com.Model.Piece;
 import com.Model.PieceColor;
+import com.Model.RoundStatus;
 import com.View.ChessPainter;
+import com.View.ProgressPainter;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Optional;
 
 public class Recorder {
 
     static int seed;
 
-    static class Point{
-        int x,y;
+    public static class Point{
+        public int x;
+        public int y;
 
         public Point(int x, int y) {
             this.x = x;
@@ -25,10 +31,10 @@ public class Recorder {
         }
     }
 
-    static class Operation{
+    public static class Operation{
 
         String op;
-        Point p;
+        public Point p;
         Object arg;
 
         public Operation(String op, Point p) {
@@ -102,7 +108,7 @@ public class Recorder {
 
     static Operation pop(){
         int len=operationList.size();
-        if(len<=1)return null;
+        if(len<=1&&!Replay.showing)return null;
         Operation operation=operationList.get(len-1);
         operationList.remove(len-1);
         System.out.println("withdraw:"+operation.toString());
@@ -124,9 +130,16 @@ public class Recorder {
         }
     }
 
-    static class Progress{
+    public static void withdraw2(){
+        if(operationList.size()>=3){
+            withdraw();
+            withdraw();
+        }
+    }
+
+    public static class Progress{
         String date,result,name,type;
-        int seed,hashcode;
+        int seed,hashcode,length;
         ArrayList<String> operations;
 
         public Progress(String date, String result, String name, int seed, ArrayList<Operation> op,String type) {
@@ -140,10 +153,11 @@ public class Recorder {
             operations=new ArrayList<>();
             for (Operation operation : op) {
                 operations.add(operation.toString());
+                if(!operation.getOp().equals("replace"))length++;
             }
-            hashcode=stringHash(result)^seed;
+            hashcode=seed;
             for (String operation : operations) {
-                hashcode^=stringHash(operation);
+                hashcode=(hashcode+stringHash(operation))%998244353;
             }
         }
 
@@ -157,7 +171,14 @@ public class Recorder {
             result=bf.readLine();
             seed= Integer.parseInt(bf.readLine());
             for (int i = 0; i < counter; i++) {
-                operations.add(bf.readLine());
+                String s=bf.readLine();
+                operations.add(s);
+                Operation op=new Operation(s);
+                if(!op.getOp().equals("replace"))length++;
+            }
+            hashcode=seed;
+            for (String operation : operations) {
+                hashcode=(hashcode+stringHash(operation))%998244353;
             }
         }
 
@@ -199,13 +220,26 @@ public class Recorder {
     static ArrayList<Progress> progressList=new ArrayList<>();
     static ArrayList<String> nameList=new ArrayList<>();
 
-    static File file = new File(Objects.requireNonNull(Recorder.class.getResource("")).getPath()+"ProgressList.txt");
-    static void load() {
+    static final String saveDir="archives",fileDir="archives/target.log";
+
+    static void makeDir(){
+        File file=new File(saveDir);
+        if(!file.exists()||!file.isDirectory())
+            file.mkdir();
+    }
+    public static void load() {
         nameList.clear();
         progressList.clear();
+        System.out.println("load.");
 
         FileReader fr;
         try {
+            makeDir();
+            File file=new File(fileDir);
+            if(!file.exists()||!file.isFile()) {
+                System.out.println("dir not found");
+                return;
+            }
             fr = new FileReader(file);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -217,11 +251,15 @@ public class Recorder {
             String s=input.readLine();
 
             counter=(s==null||s.isBlank())?0:Integer.parseInt(s);
-            for(int i=0;i<counter;++i)
+            for(int i=0;i<counter;++i) {
                 nameList.add(input.readLine());
+            }
+            input.close();
             for (int i = 0; i < counter; i++) {
+                input=new BufferedReader(new FileReader(saveDir+"/"+nameList.get(i)+".txt"));
                 Progress p=new Progress(input);
                 progressList.add(p);
+                input.close();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -230,9 +268,22 @@ public class Recorder {
         System.out.println(counter+" files are found");
     }
 
+    public static int getLastArchive(){
+        Progress p;
+        if(progressList.isEmpty())return -1;
+        else p=progressList.get(progressList.size()-1);
+        if(p.type.equals("回放"))return -1;
+        return progressList.size()-1;
+    }
+
     public static void loadFile(int progressId){
         Progress progress=progressList.get(progressId);
-        Executor.gameStart(false,progress.seed);
+        if(progress.type.equals("回放")){
+            Replay.load(progress);
+            return;
+        }
+        Executor.gameStart(false,progress.seed, InputMode.NORMAL);
+        Connector.setMode(InputMode.NORMAL, InputMode.NORMAL);
         Point point=new Point(0,0);
         for (String operation : progress.operations) {
             Operation op=new Operation(operation);
@@ -253,15 +304,15 @@ public class Recorder {
     }
 
     public static void save() {
+        makeDir();
+        File file=new File(fileDir);
         BufferedWriter output;
         try {
+            if(!file.exists()||!file.isFile())
+                file.createNewFile();
             FileWriter wr=new FileWriter(file);
             output=new BufferedWriter(wr);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
-        try {
             output.write(Integer.toString(progressList.size()));
             System.out.println(progressList.size());
             output.newLine();
@@ -270,10 +321,14 @@ public class Recorder {
                 output.newLine();
                 System.out.println(s);
             }
+            output.close();
+
             for (Progress progress : progressList) {
+                output=new BufferedWriter(new FileWriter(new File(saveDir+"/"+progress.hashCode()+".txt")));
                 progress.writeTo(output);
+                output.close();
             }
-            output.flush();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -292,18 +347,36 @@ public class Recorder {
         if(res.isEmpty())
             return;
 
-        Progress p=new Progress(date,result,res.get(),seed,operationList,"存档");
+        String pType;
+        if(Handler.getStatus()!= RoundStatus.PLAYING)
+            pType="回放";
+        else pType="存档";
+        Progress p=new Progress(date,result,res.get(),seed,operationList,pType);
 
-        if(nameList.contains(Integer.toString(p.hashCode())))
+        if(nameList.contains(Integer.toString(p.hashCode()))){
+            System.out.println(p.hashCode());
+            Alert alert=new Alert(Alert.AlertType.NONE,"存档中有重复局面，是否覆盖？",new ButtonType("覆盖", ButtonBar.ButtonData.YES),
+                    new ButtonType("取消保存", ButtonBar.ButtonData.NO));
+            alert.setTitle("确认");
+            alert.initOwner(Executor.getStage());
+            Optional<ButtonType> res1=alert.showAndWait();
+            if(res1.isPresent()&&res1.get().getButtonData().equals(ButtonBar.ButtonData.YES)){
+                int id=nameList.indexOf(Integer.toString(p.hashCode()));
+                progressList.set(id,p);
+            }
             return;
+        }
 
         progressList.add(p);
         nameList.add(Integer.toString(p.hashCode()));
     }
 
     public static void deleteFile(int id){
+        Progress p=progressList.get(id);
         nameList.remove(id);
         progressList.remove(id);
+        File file=new File(saveDir+"/"+p.hashCode()+".txt");
+        file.delete();
     }
 
     public static ArrayList<String> getNameList(){
@@ -332,5 +405,51 @@ public class Recorder {
 
     public static void setName(int id,String name){
         progressList.get(id).name=name;
+    }
+
+    public static class ReplayIterator{
+
+        Progress progress;
+        int pos;
+
+        public ReplayIterator(Progress progress){
+            assert progress.type.equals("replay");
+            this.progress=progress;
+            pos=0;
+        }
+
+        public Operation getValue(){
+            return new Operation(progress.operations.get(pos));
+        }
+
+        public int getSeed(){
+            return progress.seed;
+        }
+
+        public void next(){
+            if(!haveNext())return;
+            pos++;
+            if(getValue().getOp().equals("replace"))
+                next();
+        }
+
+        public boolean haveNext(){
+            return pos<progress.operations.size()-1;
+        }
+
+        public boolean havePre(){
+            return pos!=0;
+        }
+
+        public void pre(){
+            if(!havePre())return;
+            pos--;
+            if(getValue().getOp().equals("replace"))
+                pre();
+        }
+
+        public int length(){
+            return progress.length;
+        }
     }
 }

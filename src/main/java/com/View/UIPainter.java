@@ -1,8 +1,6 @@
 package com.View;
-import com.Controller.ChessExecutor;
-import com.Controller.Executor;
-import com.Controller.Handler;
-import com.Controller.Recorder;
+import com.AIDemo.MinMax;
+import com.Controller.*;
 import com.Model.*;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.VPos;
@@ -14,6 +12,8 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+
+import java.util.Random;
 
 public class UIPainter {
     static int height=70,lBound=270,rBound=370;
@@ -46,7 +46,14 @@ public class UIPainter {
             poly2.setStroke(Paint.valueOf("#f70909"));
         });
         poly2.setOnMouseClicked(e->{
-            Recorder.withdraw();
+            if(Connector.getNext()==InputMode.AUTO) {
+                Recorder.withdraw2();
+            }
+            else {
+                if(Connector.getMode()==InputMode.AUTO)
+                    return;
+                Recorder.withdraw();
+            }
             Handler.unselect();
         });
         pane.getChildren().add(poly2);
@@ -70,32 +77,27 @@ public class UIPainter {
         pane.getChildren().add(poly1);
 
         textMenu=Painter.text(25,"菜单",lBound,5, Color.BLACK);
-        textMenu.setOnMouseEntered(e->{
-            poly1.getOnMouseEntered().handle(e);
-        });
-        textMenu.setOnMouseExited(e->{
-            poly1.getOnMouseExited().handle(e);
-        });
-        textMenu.setOnMouseClicked(e->{
-            poly1.getOnMouseClicked().handle(e);
-        });
+        textMenu.setMouseTransparent(true);
         pane.getChildren().add(textMenu);
 
         textWithdraw=Painter.text(25,"悔棋",rBound-50,height/2.0,Color.BLACK);
-        textWithdraw.setOnMouseEntered(e->{
-            poly2.getOnMouseEntered().handle(e);
-        });
-        textWithdraw.setOnMouseClicked(e->{
-            poly2.getOnMouseClicked().handle(e);
-        });
-        textWithdraw.setOnMouseExited(e->{
-            poly2.getOnMouseExited().handle(e);
-        });
+        textWithdraw.setMouseTransparent(true);
         pane.getChildren().add(textWithdraw);
 
         Line line=new Line(0,height,640,height);
         line.setFill(Color.BLACK);
         pane.getChildren().add(line);
+    }
+
+    public static void replayMode(){
+        textWithdraw.setText("自动");
+        poly2.setOnMouseClicked(e->{
+            Replay.changeReplayMode();
+        });
+    }
+
+    public static void setTextWithdraw(String name){
+        textWithdraw.setText(name);
     }
 
     static Text redScore,blackScore,result,redName,blackName;
@@ -208,7 +210,23 @@ public class UIPainter {
         result.setX(320-35/4.0*(res.length()));
         textWithdraw.setText("重开");
         poly2.setOnMouseClicked(e->{
-            Executor.gameStart(true,0);
+            if(Executor.getGameMode()== InputMode.REPLAY)
+                Replay.clear();
+            if(Executor.getGameMode()==InputMode.AUTO){
+                Executor.gameStart(true,0, InputMode.AUTO);
+                Random rd=new Random(System.currentTimeMillis());
+                int mode=rd.nextInt(2);
+                if(mode==1){
+                    Connector.setMode(InputMode.NORMAL, InputMode.AUTO);
+                }else{
+                    Connector.setMode(InputMode.AUTO, InputMode.NORMAL);
+                    MinMax.operate();
+                }
+            }
+            if(Executor.getGameMode()==InputMode.NORMAL) {
+                Executor.gameStart(true, 0, InputMode.NORMAL);
+                Connector.setMode(InputMode.NORMAL, InputMode.NORMAL);
+            }
         });
     }
 }
