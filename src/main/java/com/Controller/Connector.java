@@ -13,6 +13,7 @@ public class Connector {
 
     public static void normalInput(int x,int y){
         if(getMode()!=InputMode.NORMAL)return;
+        System.out.println("normal input:"+x+","+y);
         Handler.select(x,y);
     }
 

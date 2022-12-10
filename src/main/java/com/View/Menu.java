@@ -133,10 +133,11 @@ public class Menu{
             Executor.setPause(false);
         });
 
-        addOption(pane,"管理存档",e->{
+        addOption(pane,"切换模式",e->{
             e.consume();
+            Executor.setPause(false);
+            ChessPainter.setCheatingMode(!ChessPainter.getCheatingMode());
             hide();
-            ProgressPainter.show();
         });
 
         addOption(pane,"主菜单",e->{

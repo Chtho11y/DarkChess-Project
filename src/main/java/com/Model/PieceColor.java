@@ -8,6 +8,10 @@ public enum PieceColor{
         return this==RED?Color.RED: Color.BLACK;
     }
 
+    public String getName(){
+        return this==RED?"#ff0000":"#000000";
+    }
+
     public PieceColor nextColor(){
         return this==RED?BLACK:RED;
     }

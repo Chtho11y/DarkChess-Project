@@ -11,6 +11,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
+import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -266,6 +267,23 @@ public class Recorder {
         }
 
         System.out.println(counter+" files are found");
+    }
+
+    public void readFromFile() throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("REPLAY","*.rpl"));
+        File file= fileChooser.showOpenDialog(Executor.getStage());
+
+        FileReader input=new FileReader(file);
+        BufferedReader reader=new BufferedReader(input);
+        Progress p=new Progress(reader);
+        nameList.add(Integer.toString(p.hashCode()));
+        progressList.add(p);
+    }
+
+    public void saveToFile(){
+
     }
 
     public static int getLastArchive(){

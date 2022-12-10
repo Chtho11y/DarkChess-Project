@@ -63,6 +63,10 @@ public class ChessPainter {
         }
 
         public void cover(){
+            if(cheating){
+                showHide();
+                return;
+            }
             bg.setFill(Color.valueOf(coveredColor));
             c1.setStroke(Color.TRANSPARENT);
             c2.setStroke(Color.TRANSPARENT);
@@ -75,6 +79,16 @@ public class ChessPainter {
             c1.setStroke(p.getColor().getValue());
             c2.setStroke(p.getColor().getValue());
             t.setFill(p.getColor().getValue());
+            System.out.println(t.getText()+":"+((t.getFill().toString().equals("0x000000ff"))?"黑方":"红方"));
+            bg.setEffect(Painter.getStandardShadow());
+        }
+
+        public void showHide(){
+            bg.setFill(Color.valueOf(pieceColor));
+            Color color= Color.valueOf(p.getColor().getName()+"55");
+            c1.setStroke(color);
+            c2.setStroke(color);
+            t.setFill(color);
             System.out.println(t.getText()+":"+((t.getFill().toString().equals("0x000000ff"))?"黑方":"红方"));
             bg.setEffect(Painter.getStandardShadow());
         }
@@ -129,6 +143,8 @@ public class ChessPainter {
 
     static final int sizeRate=1;
 
+    static boolean cheating;
+
      public static void setStage(Stage stage,int posX,int posY,int size,int pieceSize){
         ChessPainter.stage=stage;
         ChessPainter.posX=posX;
@@ -144,6 +160,7 @@ public class ChessPainter {
         blackPieceList=new RemovedPieceNode[8];
         selectCell=new Rectangle();
         nextCell=new Rectangle[4];
+        cheating=false;
     }
 
     public static void paintAll(Pane pane){
@@ -266,6 +283,21 @@ public class ChessPainter {
 
     static public void hidePiece(int x,int y){
          pieces[x][y].hide();
+    }
+
+    static public void setCheatingMode(boolean st){
+         if(st==cheating)return;
+         cheating=st;
+         for(int i=0;i<4;++i)
+             for(int j=0;j<8;++j) {
+                 Piece p = ChessExecutor.getPiece(i, j);
+                 if (!p.isEmpty() && p.isCovered())
+                     pieces[i][j].cover();
+             }
+    }
+
+    static public boolean getCheatingMode(){
+         return cheating;
     }
 
     static void paintRemovedPiece(Pane pane){
