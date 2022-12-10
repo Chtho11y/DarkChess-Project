@@ -195,7 +195,7 @@ public class UIPainter {
     }
 
     public static void paintEndMessage(RoundStatus status){
-        PieceColor winner=status.getColor(ChessExecutor.offensiveColor);
+        PieceColor winner=status.getColor(ChessExecutor.getOffensiveColor());
         if(winner!= PieceColor.UNKNOWN){
             redScore.setText(winner==PieceColor.RED?"胜":"负");
             blackScore.setText(winner==PieceColor.BLACK?"胜":"负");

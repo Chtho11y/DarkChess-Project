@@ -81,7 +81,7 @@ public class MinMax {
             for (ChessNode child : pos.getChildren()) {
                 tmp-=search(child,maxDepth,-beta,-alpha)*child.getRate();
             }
-            if(pos.getChildren().size()>1)v-=40;
+            if(pos.getChildren().size()>1)tmp-=40;
             if(v<tmp){
                 v=tmp;
                 op=pos.op;

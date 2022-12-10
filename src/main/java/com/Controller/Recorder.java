@@ -316,7 +316,7 @@ public class Recorder {
                 operationList.add(op);
                 ChessPainter.modifyPieceNumber(p,1);
                 ChessPainter.hidePiece(point.x, point.y);
-                ChessExecutor.calcScore(p,1);
+                ChessExecutor.board.calcScore(p,1);
             }
         }
     }

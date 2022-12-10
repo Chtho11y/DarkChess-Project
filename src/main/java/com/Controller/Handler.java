@@ -25,7 +25,7 @@ public class Handler {
         if(selectX==-1){
             System.out.printf("Selected %d,%d\n",x,y);
             if(ChessExecutor.getPiece(x,y).isCovered()){
-                if(ChessExecutor.offensiveColor== PieceColor.UNKNOWN){
+                if(ChessExecutor.getOffensiveColor()== PieceColor.UNKNOWN){
                     ChessExecutor.discover(x,y);
                     ChessPainter.setHighlight(x,y);
                     return;
