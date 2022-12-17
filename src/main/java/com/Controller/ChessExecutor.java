@@ -68,6 +68,11 @@ public class ChessExecutor {
         return board.getScore(color);
     }
 
+    public static void calcScore(Piece p,int n){
+        board.calcScore(p,n);
+        UIPainter.updateScore();
+    }
+
     /**
      * get the positions that the piece of {@code (x,y)} can arrive.
      * @param x row id

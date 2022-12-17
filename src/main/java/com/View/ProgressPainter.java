@@ -1,6 +1,7 @@
 package com.View;
 
 import com.Controller.Executor;
+import com.Controller.ProgressWriter;
 import com.Controller.Recorder;
 import com.Model.Option;
 import javafx.event.ActionEvent;
@@ -133,7 +134,7 @@ public class ProgressPainter{
                 Executor.redrawMainMenu();
             else Menu.show();
         });
-        addButton(pane,400,"载入",buttonColor1,e->{
+        addButton(pane,130,"载入",buttonColor1,e->{
             if(sId==-1)return;
             Recorder.loadFile(sId);
             hide();
@@ -155,6 +156,15 @@ public class ProgressPainter{
             if(res.isEmpty())
                 return;
             Recorder.setName(sId,res.get());
+            Recorder.save();
+            show();
+        });
+        addButton(pane,380,"导出",buttonColor1,e->{
+            if(sId==-1)return;
+            Recorder.buildArchiveFile(sId);
+        });
+        addButton(pane,425,"导入",buttonColor1,e->{
+            Recorder.readArchiveFile();
             Recorder.save();
             show();
         });

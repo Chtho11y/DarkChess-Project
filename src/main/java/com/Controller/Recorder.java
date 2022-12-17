@@ -139,9 +139,9 @@ public class Recorder {
     }
 
     public static class Progress{
-        String date,result,name,type;
-        int seed,hashcode,length;
-        ArrayList<String> operations;
+        public String date,result,name,type;
+        public int seed,hashcode,length;
+        public ArrayList<String> operations;
 
         public Progress(String date, String result, String name, int seed, ArrayList<Operation> op,String type) {
             this.date = date;
@@ -160,6 +160,10 @@ public class Recorder {
             for (String operation : operations) {
                 hashcode=(hashcode+stringHash(operation))%998244353;
             }
+        }
+
+        public Progress(){
+            operations=new ArrayList<>();
         }
 
         public Progress(BufferedReader bf) throws IOException {
@@ -269,23 +273,6 @@ public class Recorder {
         System.out.println(counter+" files are found");
     }
 
-    public void readFromFile() throws IOException {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Resource File");
-        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("REPLAY","*.rpl"));
-        File file= fileChooser.showOpenDialog(Executor.getStage());
-
-        FileReader input=new FileReader(file);
-        BufferedReader reader=new BufferedReader(input);
-        Progress p=new Progress(reader);
-        nameList.add(Integer.toString(p.hashCode()));
-        progressList.add(p);
-    }
-
-    public void saveToFile(){
-
-    }
-
     public static int getLastArchive(){
         Progress p;
         if(progressList.isEmpty())return -1;
@@ -316,7 +303,7 @@ public class Recorder {
                 operationList.add(op);
                 ChessPainter.modifyPieceNumber(p,1);
                 ChessPainter.hidePiece(point.x, point.y);
-                ChessExecutor.board.calcScore(p,1);
+                ChessExecutor.calcScore(p,1);
             }
         }
     }
@@ -347,6 +334,22 @@ public class Recorder {
                 output.close();
             }
 
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void buildArchiveFile(int sId){
+        ProgressWriter.writeToFile(progressList.get(sId));
+    }
+
+    public static void readArchiveFile(){
+        try {
+            Progress progress= ProgressWriter.readFromFile();
+            if(ProgressWriter.succeed()) {
+                progressList.add(progress);
+                nameList.add(Integer.toString(progress.hashCode()));
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -431,7 +434,6 @@ public class Recorder {
         int pos;
 
         public ReplayIterator(Progress progress){
-            assert progress.type.equals("replay");
             this.progress=progress;
             pos=0;
         }

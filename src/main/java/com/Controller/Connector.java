@@ -17,6 +17,12 @@ public class Connector {
         Handler.select(x,y);
     }
 
+    public static void webNormalInput(int x,int y){
+        if(getMode()!=InputMode.NORMAL)return;
+        System.out.println("normal input:"+x+","+y);
+        //TODO: send message
+    }
+
     public static void autoInput(int x,int y){
         Handler.select(x,y);
     }

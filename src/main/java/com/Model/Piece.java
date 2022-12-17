@@ -100,4 +100,8 @@ public class Piece{
     public String toString(){
         return type.id+" "+color+" "+(covered?1:0);
     }
+
+    public String getString(){
+        return type.id+" "+color;
+    }
 }

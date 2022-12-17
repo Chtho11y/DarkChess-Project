@@ -1,5 +1,11 @@
 package com.Model;
 
+import com.Controller.ChessExecutor;
+import com.Controller.Recorder;
+import com.View.ChessPainter;
+
+import java.util.Random;
+
 public class ChessBoard {
     Piece[][] board;
 
@@ -33,7 +39,7 @@ public class ChessBoard {
     }
 
     public boolean roundTest(Piece p){
-        return p.getColor()==round;
+        return p.getColor()==round||round==PieceColor.UNKNOWN;
     }
 
      public void setRoundStatus(PieceColor color){
@@ -170,5 +176,32 @@ public class ChessBoard {
 
     public Piece[][] getBoard(){
         return board;
+    }
+
+    public static ChessBoard createCB(int seed){
+        Random rd=new Random(seed);
+        Piece[] pieces =Piece.createBoard();
+        for (int i = 0; i < pieces.length; i++) {
+            int r=rd.nextInt(i+1);
+            Piece tmp= pieces[r];
+            pieces[r]= pieces[i];
+            pieces[i]=tmp;
+        }
+        return new ChessBoard(pieces);
+    }
+
+    public boolean flipCheck(int x,int y){
+        return inRange(x,y)&&!board[x][y].isEmpty()&&board[x][y].isCovered();
+    }
+
+    public boolean moveCheck(int x,int y,int x1,int y1){
+        if(!inRange(x,y))return false;
+        int[] dis=getValidPlace(x,y);
+        for(int k=0;k<4;++k){
+            int nx=x+dis[k]*dx[k],ny=y+dis[k]*dy[k];
+            if(nx==x1&&ny==y1)
+                return true;
+        }
+        return false;
     }
 }

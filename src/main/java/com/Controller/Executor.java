@@ -75,9 +75,11 @@ public class Executor {
             if (Handler.getStatus() != RoundStatus.PLAYING || pause)
                 return;
             double x = e.getSceneX(), y = e.getSceneY();
-            if (x > boardX && y > boardY)
-                Connector.normalInput((int) ((x - boardX) / cellSize), (int) ((y - boardY) / cellSize));
-
+            if (x > boardX && y > boardY) {
+                if(gameMode==InputMode.WEB)
+                    Connector.webNormalInput((int) ((x - boardX) / cellSize), (int) ((y - boardY) / cellSize));
+                else Connector.normalInput((int) ((x - boardX) / cellSize), (int) ((y - boardY) / cellSize));
+            }
             if(Handler.getStatus()!= RoundStatus.PLAYING){
                 drawEnd(Handler.getStatus());
                 return;
